@@ -9,7 +9,7 @@
 `include "Pipeline_ID_EX.v"         //done. simple ver
 `include "ALU.v"                    //done.
 `include "ALU_Control.v"            //done. 
-`include "Forwarding_Unit.v"        //
+`include "Forwarding_Unit.v"        //done.
 `include "Pipeline_EX_MEM.v"        //done. simple ver
 `include "Data_Memory.v"            //done. MemRead unused
 `include "Pipeline_MEM_WB.v"        //done. simple ver
