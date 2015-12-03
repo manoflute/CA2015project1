@@ -20,7 +20,6 @@ assign ID_EX_o = (6'b100011==Op_i)? lwInfo:
   (6'b000100)? beqInfo:
   (6'b000000)? rTypeInfo:
   8'bXXXXXXXX;
-
 assign branch_o = (6'b000010==Op_i);//if(j-type) branch_o = 1
 assign PC_i_mux_o = (6'b000100==Op_i);//if(beq)PC_i_mux_o = 0
 endmodule
