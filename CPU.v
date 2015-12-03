@@ -1,6 +1,6 @@
-`include "PC.v"                     //done simple
-`include "Control.v"                //done.
-`include "Hazard_Detection_Unit.v"  //
+`include "PC.v"                     //done
+`include "Control.v"                //done
+`include "Hazard_Detection_Unit.v"  //done
 `include "Instruction_Memory.v"     //done
 `include "Pipeline_IF_ID.v"         //done. simple ver
 `include "Adder32.v"                //done
