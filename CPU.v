@@ -1,5 +1,5 @@
 `include "PC.v"                     //done simple
-`include "Control.v"                //
+`include "Control.v"                //done.
 `include "Hazard_Detection_Unit.v"  //
 `include "Instruction_Memory.v"     //done
 `include "Pipeline_IF_ID.v"         //done. simple ver
