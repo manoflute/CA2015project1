@@ -9,5 +9,19 @@ output[7:0]     ID_EX_o;
 output          PC_i_mux_o;
 output          branch_o;
 
-
+wire[7:0] lwInfo, swInfo, beqInfo, rTypeInfo;
+//RegWrite, MemtoReg, MemRead, MemWrite, ALUSrc, ALUOp[2], RegDst
+//lw100011
+assign lwInfo = 8'b11101000;
+//sw101011
+assign swInfo = 8'b0X01100X;
+//beq000100
+assign beqInfo = 8'b0X00001X;
+//rtype000000
+assign rTypeInfo = 8'b10000101;
+assign ID_EX_o = (6'b100011==Op_i)? lwInfo:
+  (6'b101011)? swInfo:
+  (6'b000100)? beqInfo:
+  (6'b000000)? rTypeInfo:
+  8'bXXXXXXXX;
 endmodule
