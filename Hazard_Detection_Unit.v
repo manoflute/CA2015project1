@@ -23,9 +23,9 @@ if (ID/EX.MemRead and
 stall the pipeline
 */
 //wire stall, ID_EX_MemRead;
-wire ID_EX_MemRead;
-assign ID_EX_MemRead = ID_EX_M_i[1];
-assign stall_o = ID_EX_MemRead && 
+//wire ID_EX_MemRead;
+//assign ID_EX_MemRead = ID_EX_M_i[1];
+assign stall_o = ID_EX_M_i[1] && 
   (
     (ID_EX_RTaddr_i == instruction_i[25:21]) ||
     (ID_EX_RTaddr_i == instruction_i[20:16])

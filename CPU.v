@@ -210,7 +210,7 @@ assign ALUSrc_data = (FW_select_ALU_data2_o[1])? EX_MEM_addr_o:
                                                  ID_EX_RTdata_o;
 ALU ALU(
     .data1_i(ALU_data1_i),
-    .data2_i((ID_EX_ALUSrc_o)? ALUSrc_data : ID_EX_immediate_o),//mux4
+    .data2_i((ID_EX_ALUSrc_o)? ID_EX_immediate_o : ALUSrc_data),//mux4
     .ALUCtrl_i(ALU_Control_ALU_Ctrl_o),
     .data_o(ALU_data_o)     
 );
@@ -239,7 +239,7 @@ Pipeline_EX_MEM Pipeline_EX_MEM(
     .M_i(ID_EX_M_o),
     .ALU_data_i(ALU_data_o),
     .ALUSrc_data_i(ALUSrc_data),
-    .RegDst_i((ID_EX_RegDst_o)?ID_EX_RegDst_data1_o:ID_EX_RegDst_data2_o), //mux3
+    .RegDst_i((ID_EX_RegDst_o)?ID_EX_RegDst_data2_o:ID_EX_RegDst_data1_o), //mux3
 
     .WB_o(EX_MEM_WB_o),
     .MemRead_o(EX_MEM_MemRead_o),
@@ -274,6 +274,6 @@ Pipeline_MEM_WB Pipeline_MEM_WB(
 );
 
 //mux5
-assign RDdata_selected = (MEM_WB_MemtoReg_o)? MEM_WB_data_o : MEM_WB_addr_o;
+assign RDdata_selected = (MEM_WB_MemtoReg_o)? MEM_WB_data_o:MEM_WB_addr_o;
 
 endmodule

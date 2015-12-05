@@ -17,7 +17,7 @@ output reg[31:0]    pc_add4_o;
 output reg[31:0]    instruction_o;
 initial begin 
     pc_add4_o = 0;
-    instruction_o = 0;
+    instruction_o = 32'b1111_1111_1111_1111_1111_1111_1111_1111;
 end
 always @(posedge clk_i) begin
   if (!hazard_IF_ID_i) begin//if no stall
