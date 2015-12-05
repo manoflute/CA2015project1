@@ -5,6 +5,7 @@ module TestBench;
 
 reg                Clk;
 reg                Start;
+reg                Reset;
 integer            i, outfile, counter;
 integer            stall, flush;
 
@@ -13,7 +14,7 @@ always #(`CYCLE_TIME/2) Clk = ~Clk;
 CPU CPU(
     .clk_i  (Clk),
     .start_i(Start),
-    .rst_i(1'b1)        //TODO
+    .rst_i(Reset)        //TODO
 );
   
 initial begin
@@ -46,13 +47,12 @@ initial begin
     CPU.Data_Memory.memory[0] = 8'h5;       // n = 5 for example
     
     Clk = 1;
-    //Reset = 0;
+    Reset = 0;
     Start = 0;
     
     #(`CYCLE_TIME/4) 
-    //Reset = 1;
-    Start = 1;
-        
+    Reset = 1;
+    Start = 1;    
     
 end
   
