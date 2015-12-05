@@ -23,7 +23,14 @@ output reg[1:0]   WB_o;
 output reg        MemRead_o, MemWrite_o;
 output reg[31:0]  addr_o, write_data_o;
 output reg[4:0]   RegDst_o;
-
+initial begin 
+  WB_o = 0;
+  MemRead_o = 0;
+  MemWrite_o = 0;
+  addr_o = 0;
+  write_data_o = 0;
+  RegDst_o = 0;
+end
 always @(posedge clk_i) begin
   WB_o <= WB_i;
   MemRead_o <= M_i[1];

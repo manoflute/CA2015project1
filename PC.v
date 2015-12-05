@@ -25,10 +25,9 @@ always@(posedge clk_i or negedge rst_i) begin
         pc_o <= 32'b0;
     end
     else begin
-        if(start_i)
+        if(start_i && !hazard_pc_i)
             pc_o <= pc_i;
         else
-          if(!hazard_pc_i)      //if( not stalled)
             pc_o <= pc_o;
     end
 end

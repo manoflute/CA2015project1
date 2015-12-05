@@ -35,6 +35,21 @@ output reg[31:0]    RSdata_o, RTdata_o, immediate_o;
 output reg[4:0]     RSdata_forward_o, RTdata_forward_o, RegDst_data1_o, RegDst_data2_o;
 
 wire[3:0]       EX;
+initial begin 
+  WB_o = 0;
+  M_o = 0;
+  ALUSrc_o = 0;
+  ALU_op_o = 0;
+  RegDst_o = 0;
+
+  RSdata_o = 0;
+  RTdata_o = 0;
+  immediate_o = 0;
+  RSdata_forward_o = 0;
+  RTdata_forward_o = 0;
+  RegDst_data1_o = 0;
+  RegDst_data2_o = 0;
+end
 always @(posedge clk_i) begin
   WB_o <= pipeline_info_i[7:6];
   M_o <= pipeline_info_i[5:4];

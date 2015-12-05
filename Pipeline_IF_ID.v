@@ -15,7 +15,10 @@ input           flush_i;
 
 output reg[31:0]    pc_add4_o;
 output reg[31:0]    instruction_o;
-
+initial begin 
+    pc_add4_o = 0;
+    instruction_o = 0;
+end
 always @(posedge clk_i) begin
   if (!hazard_IF_ID_i) begin//if no stall
     pc_add4_o <= pc_add4_i;
