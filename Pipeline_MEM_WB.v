@@ -19,7 +19,7 @@ input[4:0]      RegDst_i;
 output reg          RegWrite_o, MemtoReg_o;
 output reg[31:0]    data_o, addr_o;
 output reg[4:0]     RegDst_o;
-always @(clk_i) begin
+always @(posedge clk_i) begin
   RegWrite_o <= WB_i[1];
   MemtoReg_o <= WB_i[0];
   data_o <= data_i;

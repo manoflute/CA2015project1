@@ -49,16 +49,16 @@ Hazard_Detection_Unit Hazard_Detection_Unit(
 
 wire select_add_pc;
 assign select_add_pc = (Registers_eq && Control_branch_o);
-wire [31:0] pc_add4_selected, pc_composite;
+wire [31:0] pc_add4_selected, pc_jump;
 assign pc_add4_selected = (select_add_pc)? Add_pc_o:ADD_o;//TODO: swap position?
-assign pc_composite = {pc_add4_selected[31:28], instruction[25:0]<<2};
+assign pc_jump = {pc_add4_selected[31:28], instruction[25:0]<<2};
 
 PC PC(
     .clk_i(clk_i),
     .rst_i(rst_i),
     .start_i(start_i),
     .hazard_pc_i(Hazard_Detection_Unit_PC_o),
-    .pc_i((Control_PC_i_mux_o)? pc_composite:pc_add4_selected),
+    .pc_i((Control_PC_i_mux_o)? pc_jump:pc_add4_selected),
     .pc_o(PC_pc_o)
 );
 
@@ -80,7 +80,7 @@ Pipeline_IF_ID Pipeline_IF_ID(
     .hazard_IF_ID_i(Hazard_Detection_Unit_IF_ID_o),
     .pc_add4_i(Add_pc_o),
     .instruction_i(Instruction_Memory_instr_o),
-    .flush_i(Control_PC_i_mux_o && select_add_pc),
+    .flush_i(Control_PC_i_mux_o || select_add_pc),
     .pc_add4_o(IF_ID_pc_add4_o),
     .instruction_o(instruction)
 );
