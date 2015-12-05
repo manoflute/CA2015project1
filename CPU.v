@@ -162,7 +162,7 @@ assign ALUSrc_data = (FW_select_ALU_data2_o[1])? EX_MEM_addr_o:
                      (FW_select_ALU_data2_o[0])? RDdata_selected: 
                                                  ID_EX_RTdata_o;
 ALU ALU(
-    .data1_i(ALU_data1_i),//TODO:WB, forward unit
+    .data1_i(ALU_data1_i),
     .data2_i((ID_EX_ALUSrc_o)? ID_EX_immediate_o: ALUSrc_data),
     .ALUCtrl_i(ALU_Control_ALU_Ctrl_o),
     .data_o(ALU_data_o)     
