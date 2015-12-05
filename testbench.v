@@ -13,7 +13,7 @@ always #(`CYCLE_TIME/2) Clk = ~Clk;
 CPU CPU(
     .clk_i  (Clk),
     .start_i(Start),
-    .rst_i(1'b0)
+    .rst_i(1'b1)        //TODO
 );
   
 initial begin

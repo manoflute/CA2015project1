@@ -2,17 +2,17 @@
 `include "Control.v"                //done
 `include "Hazard_Detection_Unit.v"  //done
 `include "Instruction_Memory.v"     //done
-`include "Pipeline_IF_ID.v"         //done. simple ver
+`include "Pipeline_IF_ID.v"         //done TODO:flush_i unused  
 `include "Adder32.v"                //done
-`include "Registers.v"              //done. TODO:posedge?
-`include "Sign_Extend_16to32.v"     //done.
-`include "Pipeline_ID_EX.v"         //done. simple ver
-`include "ALU.v"                    //done.
-`include "ALU_Control.v"            //done. 
-`include "Forwarding_Unit.v"        //done.
-`include "Pipeline_EX_MEM.v"        //done. simple ver
-`include "Data_Memory.v"            //done. MemRead unused
-`include "Pipeline_MEM_WB.v"        //done. simple ver
+`include "Registers.v"              //done TODO:posedge?
+`include "Sign_Extend_16to32.v"     //done 
+`include "Pipeline_ID_EX.v"         //done 
+`include "ALU.v"                    //done 
+`include "ALU_Control.v"            //done  
+`include "Forwarding_Unit.v"        //done 
+`include "Pipeline_EX_MEM.v"        //done
+`include "Data_Memory.v"            //done TODO:MemRead unused
+`include "Pipeline_MEM_WB.v"        //done 
 
 module CPU
 (
