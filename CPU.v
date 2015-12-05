@@ -105,7 +105,7 @@ Registers Registers
     .RTdata_o(Registers_RTdata_o)
 );
 wire Registers_eq;
-assign Registers_eq = (Registers_RSdata_o == Registers_RSdata_o);
+assign Registers_eq = (Registers_RSdata_o == Registers_RTdata_o);
 
 wire[31:0] ext_o;
 Sign_Extend_16to32 Sign_Extend_16to32(
@@ -139,7 +139,7 @@ Pipeline_ID_EX Pipeline_ID_EX(
     .immediate_o(ID_EX_immediate_o),
     .RSdata_forward_o(ID_EX_RSdata_forward_o),
     .RTdata_forward_o(ID_EX_RTdata_forward_o),
-    .RegDst_data1_o(ID_EX_RegDst_data1_o),//TODO:naming
+    .RegDst_data1_o(ID_EX_RegDst_data1_o),          //TODO:naming
     .RegDst_data2_o(ID_EX_RegDst_data2_o)
 );
 wire [1:0] FW_select_ALU_data1_o, FW_select_ALU_data2_o;
