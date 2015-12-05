@@ -1,3 +1,4 @@
+`include "CPU.v"
 `define CYCLE_TIME 50            
 
 module TestBench;
@@ -11,7 +12,8 @@ always #(`CYCLE_TIME/2) Clk = ~Clk;
 
 CPU CPU(
     .clk_i  (Clk),
-    .start_i(Start)
+    .start_i(Start),
+    .rst_i(1'b0)
 );
   
 initial begin
