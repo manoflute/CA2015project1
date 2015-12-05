@@ -25,41 +25,97 @@ input       clk_i;
 input       rst_i;
 input       start_i;
 
-wire[31:0] PC_pc_o, instruction, Add_pc_o;
+//PC
+wire[31:0] PC_pc_o;
 
+//Instruction_Memory
+wire[31:0] Instruction_Memory_instr_o;
+
+//Adder32
+wire[31:0] Add_pc_o;
+
+//Pipeline_IF_ID
+wire[31:0] IF_ID_pc_add4_o;
+wire[31:0] instruction;
+
+//Hazard_Detection_Unit
+wire stall_o;
+wire Hazard_Detection_Unit_PC_o;
+wire Hazard_Detection_Unit_IF_ID_o;
+wire Hazard_Detection_Unit_Control_mux_o;
+
+//Adder32
+wire[31:0] ADD_o;
+
+//Sign_Extend_16to32
+wire[31:0] ext_o;
+
+//Registers
+wire[31:0] Registers_RSdata_o;
+wire[31:0] Registers_RTdata_o;
+
+//Control
 wire[7:0] Control_ID_EX_o;
 wire Control_PC_i_mux_o;
 wire Control_branch_o;
-Control Control(
-    .Op_i(instruction[31:26]),
-    .ID_EX_o(Control_ID_EX_o),
-    .PC_i_mux_o(Control_PC_i_mux_o),
-    .branch_o(Control_branch_o)
-);
 
-wire Hazard_Detection_Unit_PC_o, Hazard_Detection_Unit_IF_ID_o, Hazard_Detection_Unit_Control_mux_o;
-Hazard_Detection_Unit Hazard_Detection_Unit(
-    .instruction_i(instruction),
-    .ID_EX_RTaddr_i(ID_EX_RegDst_data1_o),
-    .ID_EX_M_i(ID_EX_M_o),
-    .PC_o(Hazard_Detection_Unit_PC_o),
-    .IF_ID_o(Hazard_Detection_Unit_IF_ID_o),
-    .Control_mux_o(Hazard_Detection_Unit_Control_mux_o)
-);
+//Pipeline_ID_EX
+wire[1:0]   ID_EX_WB_o, ID_EX_M_o;
+wire        ID_EX_ALUSrc_o, ID_EX_RegDst_o;
+wire[1:0]   ID_EX_ALU_op_o;
+wire[31:0]  ID_EX_RSdata_o, ID_EX_RTdata_o, ID_EX_immediate_o;
+wire[4:0]   ID_EX_RSdata_forward_o, ID_EX_RTdata_forward_o, ID_EX_RegDst_data1_o, ID_EX_RegDst_data2_o;
 
+//ALU
+wire[31:0] ALU_data1_i, ALUSrc_data, ALU_data_o;
+
+//ALU_Control
+wire[2:0] ALU_Control_ALU_Ctrl_o;
+
+//Forwarding_Unit
+wire [1:0] FW_select_ALU_data1_o, FW_select_ALU_data2_o;
+
+//Pipeline_EX_MEM
+wire[1:0]     EX_MEM_WB_o;
+wire          EX_MEM_MemRead_o, EX_MEM_MemWrite_o;
+wire[31:0]    EX_MEM_addr_o, EX_MEM_write_data_o;
+wire[4:0]     EX_MEM_RegDst_o;
+
+//Data_Memory
+wire[31:0] Data_Memory_data_o;
+
+//Pipeline_MEM_WB
+wire        MEM_WB_RegWrite_o, MEM_WB_MemtoReg_o;
+wire[4:0]   MEM_WB_RegDst_o;
+wire[31:0]  MEM_WB_data_o, MEM_WB_addr_o;
+
+//
+wire Registers_eq;
 wire select_add_pc;
-assign select_add_pc = (Registers_eq && Control_branch_o);
+wire[31:0] RDdata_selected;
 wire [31:0] pc_add4_selected, pc_jump;
-assign pc_add4_selected = (select_add_pc)? Add_pc_o:ADD_o;//TODO: swap position?
-assign pc_jump = {pc_add4_selected[31:28], instruction[25:0]<<2};
+
+assign Registers_eq = (Registers_RSdata_o == Registers_RTdata_o);
+assign select_add_pc = (Registers_eq && Control_branch_o);
 
 PC PC(
     .clk_i(clk_i),
     .rst_i(rst_i),
     .start_i(start_i),
-    .hazard_pc_i(Hazard_Detection_Unit_PC_o),
-    .pc_i((Control_PC_i_mux_o)? pc_jump:pc_add4_selected),
+    //.hazard_pc_i(Hazard_Detection_Unit_PC_o),
+    .hazard_pc_i(stall_o),
+    .pc_i((Control_PC_i_mux_o)? pc_jump:pc_add4_selected), //mux2
     .pc_o(PC_pc_o)
+);
+
+//mux1
+assign pc_add4_selected = (select_add_pc)? ADD_o : Add_pc_o;//TODO: swap position? YES!!!!
+
+assign pc_jump = {pc_add4_selected[31:28], instruction[25:0]<<<2};
+
+Instruction_Memory Instruction_Memory(
+    .addr_i(PC_pc_o), 
+    .instr_o(Instruction_Memory_instr_o)
 );
 
 Adder32 Add_pc(
@@ -68,16 +124,10 @@ Adder32 Add_pc(
     .data_o(Add_pc_o)
 );
 
-wire[31:0] Instruction_Memory_instr_o;
-Instruction_Memory Instruction_Memory(
-    .addr_i(PC_pc_o), 
-    .instr_o(Instruction_Memory_instr_o)
-);
-
-wire[31:0] IF_ID_pc_add4_o;
 Pipeline_IF_ID Pipeline_IF_ID(
     .clk_i(clk_i),
-    .hazard_IF_ID_i(Hazard_Detection_Unit_IF_ID_o),
+    //.hazard_IF_ID_i(Hazard_Detection_Unit_IF_ID_o),
+    .hazard_IF_ID_i(stall_o),
     .pc_add4_i(Add_pc_o),
     .instruction_i(Instruction_Memory_instr_o),
     .flush_i(Control_PC_i_mux_o || select_add_pc),
@@ -85,16 +135,28 @@ Pipeline_IF_ID Pipeline_IF_ID(
     .instruction_o(instruction)
 );
 
-wire[31:0] ADD_o;
+Hazard_Detection_Unit Hazard_Detection_Unit(
+    .instruction_i(instruction),
+    .ID_EX_RTaddr_i(ID_EX_RegDst_data1_o),
+    .ID_EX_M_i(ID_EX_M_o),
+    .stall_o(stall_o)
+    //.PC_o(Hazard_Detection_Unit_PC_o),
+    //.IF_ID_o(Hazard_Detection_Unit_IF_ID_o),
+    //.Control_mux_o(Hazard_Detection_Unit_Control_mux_o)
+);
+
 Adder32 ADD(
     .data1_i(IF_ID_pc_add4_o),
     .data2_i(ext_o<<<2),//TODO: logical? arithmetic?
     .data_o(ADD_o)
 );
 
-wire[31:0] Registers_RSdata_o, Registers_RTdata_o;
-Registers Registers
-(
+Sign_Extend_16to32 Sign_Extend_16to32(
+    .data_i(instruction[15:0]),
+    .data_o(ext_o)    
+);
+
+Registers Registers(
     .clk_i(clk_i),
     .RSaddr_i(instruction[25:21]),
     .RTaddr_i(instruction[20:16]),
@@ -104,24 +166,19 @@ Registers Registers
     .RSdata_o(Registers_RSdata_o), 
     .RTdata_o(Registers_RTdata_o)
 );
-wire Registers_eq;
-assign Registers_eq = (Registers_RSdata_o == Registers_RTdata_o);
 
-wire[31:0] ext_o;
-Sign_Extend_16to32 Sign_Extend_16to32(
-    .data_i(instruction[15:0]),
-    .data_o(ext_o)    
+Control Control(
+    .Op_i(instruction[31:26]),
+    .ID_EX_o(Control_ID_EX_o),
+    .PC_i_mux_o(Control_PC_i_mux_o),
+    .branch_o(Control_branch_o)
 );
 
-wire[1:0]   ID_EX_WB_o, ID_EX_M_o;
-wire        ID_EX_ALUSrc_o, ID_EX_RegDst_o;
-wire[1:0]   ID_EX_ALU_op_o;
-wire[31:0]  ID_EX_RSdata_o, ID_EX_RTdata_o,  ID_EX_immediate_o;
-wire[4:0]   ID_EX_RSdata_forward_o, ID_EX_RTdata_forward_o, ID_EX_RegDst_data1_o, ID_EX_RegDst_data2_o;
 Pipeline_ID_EX Pipeline_ID_EX(
     .clk_i(clk_i),
-    .pipeline_info_i((Hazard_Detection_Unit_Control_mux_o)?8'b0:Control_ID_EX_o),
-    .pc_add4_i(ADD_o),
+    //.pipeline_info_i((Hazard_Detection_Unit_Control_mux_o)?8'b0:Control_ID_EX_o), //mux8
+    .pipeline_info_i((stall_o)?8'b0:Control_ID_EX_o),
+    .pc_add4_i(IF_ID_pc_add4_o),
     .RSdata_i(Registers_RSdata_o),
     .RTdata_i(Registers_RTdata_o),
     .immediate_i(ext_o),
@@ -137,13 +194,34 @@ Pipeline_ID_EX Pipeline_ID_EX(
     .RSdata_o(ID_EX_RSdata_o),
     .RTdata_o(ID_EX_RTdata_o),
     .immediate_o(ID_EX_immediate_o),
-    .RSdata_forward_o(ID_EX_RSdata_forward_o),
-    .RTdata_forward_o(ID_EX_RTdata_forward_o),
-    .RegDst_data1_o(ID_EX_RegDst_data1_o),          //TODO:naming
-    .RegDst_data2_o(ID_EX_RegDst_data2_o)
+    .RSaddr_forward_o(ID_EX_RSdata_forward_o),
+    .RTaddr_forward_o(ID_EX_RTdata_forward_o),
+    .RegDst_addr1_o(ID_EX_RegDst_data1_o),          //TODO:naming
+    .RegDst_addr2_o(ID_EX_RegDst_data2_o)
 );
-wire [1:0] FW_select_ALU_data1_o, FW_select_ALU_data2_o;
-Forwarding_Unit Fowarding_Unit(
+
+//mux6
+assign ALU_data1_i = (FW_select_ALU_data1_o[1])? EX_MEM_addr_o:
+                     (FW_select_ALU_data1_o[0])? RDdata_selected: 
+                                                 ID_EX_RSdata_o;
+//mux7
+assign ALUSrc_data = (FW_select_ALU_data2_o[1])? EX_MEM_addr_o:
+                     (FW_select_ALU_data2_o[0])? RDdata_selected: 
+                                                 ID_EX_RTdata_o;
+ALU ALU(
+    .data1_i(ALU_data1_i),
+    .data2_i((ID_EX_ALUSrc_o)? ALUSrc_data : ID_EX_immediate_o),//mux4
+    .ALUCtrl_i(ALU_Control_ALU_Ctrl_o),
+    .data_o(ALU_data_o)     
+);
+
+ALU_Control ALU_Control(
+  .immediate_i(ID_EX_immediate_o),
+  .ALU_op_i(ID_EX_ALU_op_o),
+  .ALU_Ctrl_o(ALU_Control_ALU_Ctrl_o)
+);
+
+Forwarding_Unit Forwarding_Unit(
    .ID_EX_RSaddr_i(ID_EX_RSdata_forward_o), 
    .ID_EX_RTaddr_i(ID_EX_RTdata_forward_o),
    .EX_MEM_RegDst_i(EX_MEM_RegDst_o),
@@ -154,37 +232,14 @@ Forwarding_Unit Fowarding_Unit(
    .select_ALU_data1_o(FW_select_ALU_data1_o),
    .select_ALU_data2_o(FW_select_ALU_data2_o)
 );
-wire[31:0] ALU_data1_i, ALUSrc_data, ALU_data_o;
-assign ALU_data1_i = (FW_select_ALU_data1_o[1])? EX_MEM_addr_o:
-                     (FW_select_ALU_data1_o[0])? RDdata_selected: 
-                                                 ID_EX_RSdata_o;
-assign ALUSrc_data = (FW_select_ALU_data2_o[1])? EX_MEM_addr_o:
-                     (FW_select_ALU_data2_o[0])? RDdata_selected: 
-                                                 ID_EX_RTdata_o;
-ALU ALU(
-    .data1_i(ALU_data1_i),
-    .data2_i((ID_EX_ALUSrc_o)? ID_EX_immediate_o: ALUSrc_data),
-    .ALUCtrl_i(ALU_Control_ALU_Ctrl_o),
-    .data_o(ALU_data_o)     
-);
-wire[2:0] ALU_Control_ALU_Ctrl_o;
-ALU_Control ALU_Control(
-  .immediate_i(ID_EX_immediate_o),
-  .ALU_op_i(ID_EX_ALU_op_o),
-  .ALU_Ctrl_o(ALU_Control_ALU_Ctrl_o)
-);
 
-wire[1:0]     EX_MEM_WB_o;
-wire          EX_MEM_MemRead_o, EX_MEM_MemWrite_o;
-wire[31:0]    EX_MEM_addr_o, EX_MEM_write_data_o;
-wire[4:0]     EX_MEM_RegDst_o;
 Pipeline_EX_MEM Pipeline_EX_MEM(
     .clk_i(clk_i),
     .WB_i(ID_EX_WB_o),
     .M_i(ID_EX_M_o),
     .ALU_data_i(ALU_data_o),
     .ALUSrc_data_i(ALUSrc_data),
-    .RegDst_i((ID_EX_RegDst_o)?ID_EX_RegDst_data2_o:ID_EX_RegDst_data1_o),
+    .RegDst_i((ID_EX_RegDst_o)?ID_EX_RegDst_data1_o:ID_EX_RegDst_data2_o), //mux3
 
     .WB_o(EX_MEM_WB_o),
     .MemRead_o(EX_MEM_MemRead_o),
@@ -193,7 +248,7 @@ Pipeline_EX_MEM Pipeline_EX_MEM(
     .write_data_o(EX_MEM_write_data_o),
     .RegDst_o(EX_MEM_RegDst_o)
 );
-wire[31:0] Data_Memory_data_o;
+
 Data_Memory Data_Memory(
     .clk_i(clk_i),
     .MemWrite_i(EX_MEM_MemWrite_o),
@@ -203,9 +258,7 @@ Data_Memory Data_Memory(
 
     .data_o(Data_Memory_data_o)
 );
-wire        MEM_WB_RegWrite_o, MEM_WB_MemtoReg_o;
-wire[4:0]   MEM_WB_RegDst_o;
-wire[31:0]  MEM_WB_data_o, MEM_WB_addr_o;
+
 Pipeline_MEM_WB Pipeline_MEM_WB(
     .clk_i(clk_i),
     .WB_i(EX_MEM_WB_o),
@@ -219,7 +272,8 @@ Pipeline_MEM_WB Pipeline_MEM_WB(
     .addr_o(MEM_WB_addr_o),
     .RegDst_o(MEM_WB_RegDst_o)
 );
-wire[31:0] RDdata_selected;
-assign RDdata_selected = (MEM_WB_MemtoReg_o)? MEM_WB_addr_o:MEM_WB_data_o;
+
+//mux5
+assign RDdata_selected = (MEM_WB_MemtoReg_o)? MEM_WB_data_o : MEM_WB_addr_o;
 
 endmodule

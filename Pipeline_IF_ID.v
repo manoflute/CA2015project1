@@ -22,7 +22,11 @@ end
 always @(posedge clk_i) begin
   if (!hazard_IF_ID_i) begin//if no stall
     pc_add4_o <= pc_add4_i;
-    instruction_o <= instruction_i;
+    
+    if (flush_i)
+        instruction_o <= 32'd0;
+    else
+        instruction_o <= instruction_i;
   end
 end
 endmodule
