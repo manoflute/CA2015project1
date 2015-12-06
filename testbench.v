@@ -58,7 +58,7 @@ initial begin
 end
   
 always@(posedge Clk) begin
-    if(counter == 30)    // stop after 30 cycles
+    if(counter == 63)    // stop after 30 cycles
         $finish;
 
     // put in your own signal to count stall and flush
@@ -66,33 +66,36 @@ always@(posedge Clk) begin
     if (CPU.Hazard_Detection_Unit.stall_o == 1) stall = stall + 1;
     // if(CPU.HazzardDetection.mux8_o == 1 && CPU.Control.Jump_o == 0 && CPU.Control.Branch_o == 0)stall = stall + 1;
     // if(CPU.HazzardDetection.Flush_o == 1)flush = flush + 1;  
-/* 
-    $fdisplay(outfile, "CPU.Hazard_Detection_Unit.stall_o = %d", CPU.Hazard_Detection_Unit.stall_o);
+ 
+    //$fdisplay(outfile, "CPU.Hazard_Detection_Unit.stall_o = %d", CPU.Hazard_Detection_Unit.stall_o);
     //$fdisplay(outfile, "CPU.Hazard_Detection_Unit.ID_EX_M_i[1] = %d", CPU.Hazard_Detection_Unit.ID_EX_M_i[1]);
     //$fdisplay(outfile, "CPU.Hazard_Detection_Unit.ID_EX_RTaddr_i = %d", CPU.Hazard_Detection_Unit.ID_EX_RTaddr_i);
-    $fdisplay(outfile, "CPU.Pipeline_ID_EX.pipeline_info_i = %d", CPU.Pipeline_ID_EX.pipeline_info_i);
-    $fdisplay(outfile, "CPU.Control.ID_EX_o = %d", CPU.Control.ID_EX_o);
-    $fdisplay(outfile, "CPU.Pipeline_IF_ID.instruction_o = %d", CPU.Pipeline_IF_ID.instruction_o);
-    $fdisplay(outfile, "CPU.Instruction_Memory.instr_o = %d", CPU.Instruction_Memory.instr_o);
-   // $fdisplay(outfile, "CPU.PC.pc_o = %d", CPU.PC.pc_o);
+    //$fdisplay(outfile, "CPU.Pipeline_ID_EX.pipeline_info_i = %d", CPU.Pipeline_ID_EX.pipeline_info_i);
+    //$fdisplay(outfile, "CPU.Control.ID_EX_o = %d", CPU.Control.ID_EX_o);
+    //$fdisplay(outfile, "CPU.Pipeline_IF_ID.instruction_o = %d", CPU.Pipeline_IF_ID.instruction_o);
+    //$fdisplay(outfile, "CPU.Instruction_Memory.instr_o = %d", CPU.Instruction_Memory.instr_o);
+    //$fdisplay(outfile, "CPU.PC.pc_o = %d", CPU.PC.pc_o);
     //$fdisplay(outfile, "CPU.PC.pc_i = %d", CPU.PC.pc_i);
-    $fdisplay(outfile, "CPU.ALU.data1_i = %d", CPU.ALU.data1_i);
-    $fdisplay(outfile, "CPU.ALU.data2_i = %d", CPU.ALU.data2_i);
-    $fdisplay(outfile, "CPU.Sign_Extend_16to32.data_o = %d", CPU.Sign_Extend_16to32.data_o);
-    $fdisplay(outfile, "CPU.Pipeline_ID_EX.immediate_o = %d", CPU.Pipeline_ID_EX.immediate_o);
-    $fdisplay(outfile, "CPU.Pipeline_ID_EX.ALUSrc_o = %d", CPU.Pipeline_ID_EX.ALUSrc_o);
-    $fdisplay(outfile, "CPU.Control.Op_i = %d", CPU.Control.Op_i);
-    $fdisplay(outfile, "CPU.RDdata_selected = %d", CPU.RDdata_selected);
-    $fdisplay(outfile, "CPU.ALUSrc_data = %d", CPU.ALUSrc_data);
-    $fdisplay(outfile, "CPU.Data_Memory.write_data_i = %d", CPU.Data_Memory.write_data_i);
-    $fdisplay(outfile, "CPU.Data_Memory.MemWrite_i = %d", CPU.Data_Memory.MemWrite_i);
-    $fdisplay(outfile, "CPU.Data_Memory.addr_i = %d", CPU.Data_Memory.addr_i);
+    //$fdisplay(outfile, "CPU.Sign_Extend_16to32.data_o = %d", CPU.Sign_Extend_16to32.data_o);
+    //$fdisplay(outfile, "CPU.Pipeline_ID_EX.immediate_o = %d", CPU.Pipeline_ID_EX.immediate_o);
+    //$fdisplay(outfile, "CPU.Pipeline_ID_EX.ALUSrc_o = %d", CPU.Pipeline_ID_EX.ALUSrc_o);
+    //$fdisplay(outfile, "CPU.Control.Op_i = %d", CPU.Control.Op_i);
+    //$fdisplay(outfile, "CPU.RDdata_selected = %d", CPU.RDdata_selected);
+    //$fdisplay(outfile, "CPU.ALUSrc_data = %d", CPU.ALUSrc_data);
+    //$fdisplay(outfile, "CPU.ALU.ALUCtrl_i = %d", CPU.ALU.ALUCtrl_i);
+    //$fdisplay(outfile, "CPU.ALU.data1_i = %d", CPU.ALU.data1_i);
+    //$fdisplay(outfile, "CPU.ALU.data2_i = %d", CPU.ALU.data2_i);
+    //$fdisplay(outfile, "CPU.ALU.data_o = %d", CPU.ALU.data_o);
+    //$fdisplay(outfile, "CPU.Data_Memory.write_data_i = %d", CPU.Data_Memory.write_data_i);
+    //$fdisplay(outfile, "CPU.Data_Memory.MemWrite_i = %d", CPU.Data_Memory.MemWrite_i);
+    //$fdisplay(outfile, "CPU.Data_Memory.addr_i = %d", CPU.Data_Memory.addr_i);
+    
     //$fdisplay(outfile, "CPU.Sign_Extend_16to32.data_o = %d", CPU.Sign_Extend_16to32.data_o);
     //$fdisplay(outfile, "CPU.Sign_Extend_16to32.data_o = %d", CPU.Sign_Extend_16to32.data_o);
     //$fdisplay(outfile, "CPU.Sign_Extend_16to32.data_o = %d", CPU.Sign_Extend_16to32.data_o);
 
     $fdisplay(outfile, "\n");
-*/
+
     // print PC
     $fdisplay(outfile, "cycle = %d, Start = %d, Stall = %d, Flush = %d\nPC = %d", counter, Start, stall, flush, CPU.PC.pc_o);
     
